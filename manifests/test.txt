@@ -1,4 +1,0 @@
-mco_role::middleware
-mco_role::middleware::activemq
-mco_role::middleware::rabbitmq
-mco_role::server

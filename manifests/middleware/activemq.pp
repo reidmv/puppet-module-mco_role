@@ -1,50 +1,47 @@
 # This class prepares an ActiveMQ middleware service for use by MCollective.
-class site::activemq_broker (
-  $activemq_memoryusage = '200 mb',
-  $activemq_storeusage  = '1 gb',
-  $activemq_tempusage   = '1 gb',
-  $activemq_console     = false,
-  $activemq_confdir     = undef,
-) inherits site {
+class mco_role::middleware::activemq (
+  $memoryusage = '200 mb',
+  $storeusage  = '1 gb',
+  $tempusage   = '1 gb',
+  $console     = false,
+) inherits mco_role {
 
   # We need to know somewhat for sure exactly what configuration directory
   # will be used for ActiveMQ in order to correctly build the template.
-  $confdir = $activemq_confdir ? {
-    default => $activemq_confdir,
-    undef   => $::osfamily ? {
-      'Debian' => '/etc/activemq/instances-available/mcollective',
-      default  => '/etc/activemq',
-    },
+  $confdir = $::osfamily ? {
+    'Debian' => '/etc/activemq/instances-available/mcollective',
+    default  => '/etc/activemq',
   }
 
   # Set up and contain the ActiveMQ server using the puppetlabs/activemq
   # module
   class { '::activemq':
     instance      => 'mcollective',
-    server_config => template('site/activemq_template.erb'),
+    server_config => template('mco_role/activemq_template.erb'),
   }
   contain 'activemq'
 
-  # Set up SSL configuration. Use copies of the keys specified.
+  # Set up SSL configuration. Use copies of the PEM keys specified to create
+  # the Java keystores.
   file { "${confdir}/ca.pem":
     owner   => 'activemq',
     group   => 'activemq',
     mode    => '0444',
-    source  => $site::ssl_server_ca,
+    source  => $mco_role::ssl_server_ca,
     require => Class['activemq::packages'],
   }
   file { "${confdir}/server_cert.pem":
     owner   => 'activemq',
     group   => 'activemq',
     mode    => '0444',
-    source  => $site::ssl_server_cert,
+    source  => $mco_role::ssl_server_cert,
     require => Class['activemq::packages'],
   }
   file { "${confdir}/server_private.pem":
     owner   => 'activemq',
     group   => 'activemq',
     mode    => '0400',
-    source  => $site::ssl_server_private,
+    source  => $mco_role::ssl_server_private,
     require => Class['activemq::packages'],
   }
 

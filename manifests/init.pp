@@ -5,7 +5,7 @@ class mco_role (
   $main_collective           = 'mcollective',
   $collectives               = undef,
   $middleware_hosts          = undef,
-  $middleware_username       = 'mcollective',
+  $middleware_user           = 'mcollective',
   $middleware_password       = 'mcollective',
   $middleware_ssl_port       = '61613',
   $ssl_server_public         = "${::settings::ssldir}/public_keys/${::clientcert}.pem",
