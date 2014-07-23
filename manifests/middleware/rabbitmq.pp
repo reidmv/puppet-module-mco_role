@@ -1,8 +1,17 @@
 # This class prepares a RabbitMQ middleware service for use by MCollective.
 class mco_role::middleware::rabbitmq (
-  $confdir           = '/etc/rabbitmq',
-  $vhost             = $mco_role::params::rabbitmq_vhost,
-  $delete_guest_user = false,
+  $confdir                   = '/etc/rabbitmq',
+  $vhost                     = $mco_role::params::rabbitmq_vhost,
+  $delete_guest_user         = false,
+  $ssl_ca_cert               = $mco_role::params::ssl_ca_cert,
+  $ssl_server_public         = $mco_role::params::ssl_server_public,
+  $ssl_server_private        = $mco_role::params::ssl_server_private,
+  $middleware_port           = $mco_role::params::middleware_port,
+  $middleware_ssl_port       = $mco_role::params::middleware_ssl_port,
+  $middleware_user           = $mco_role::params::middleware_user,
+  $middleware_password       = $mco_role::params::middleware_password,
+  $middleware_admin_user     = $mco_role::params::middleware_admin_user,
+  $middleware_admin_password = $mco_role::params::middleware_admin_password,
 ) inherits mco_role::params {
 
   # Set up SSL files. Use copies of the PEM keys specified as parameters.
@@ -10,19 +19,19 @@ class mco_role::middleware::rabbitmq (
     owner  => 'rabbitmq',
     group  => 'rabbitmq',
     mode   => '0444',
-    source => $mco_role::params::ssl_ca_cert,
+    source => $ssl_ca_cert,
   }
   file { "${confdir}/server_public.pem":
     owner  => 'rabbitmq',
     group  => 'rabbitmq',
     mode   => '0444',
-    source => $mco_role::params::ssl_server_public,
+    source => $ssl_server_public,
   }
   file { "${confdir}/server_private.pem":
     owner  => 'rabbitmq',
     group  => 'rabbitmq',
     mode   => '0400',
-    source => $mco_role::params::ssl_server_private,
+    source => $ssl_server_private,
   }
 
   # Install the RabbitMQ service using the puppetlabs/rabbitmq module
@@ -30,8 +39,8 @@ class mco_role::middleware::rabbitmq (
     config_stomp      => true,
     delete_guest_user => $delete_guest_user,
     ssl               => true,
-    stomp_port        => $mco_role::params::middleware_port,
-    ssl_stomp_port    => $mco_role::params::middleware_ssl_port,
+    stomp_port        => $middleware_port,
+    ssl_stomp_port    => $middleware_ssl_port,
     ssl_cacert        => "${confdir}/ca.pem",
     ssl_cert          => "${confdir}/server_public.pem",
     ssl_key           => "${confdir}/server_private.pem",
@@ -47,40 +56,40 @@ class mco_role::middleware::rabbitmq (
     ensure => present,
   } ->
 
-  rabbitmq_user { $mco_role::params::middleware_user:
+  rabbitmq_user { $middleware_user:
     ensure   => present,
     admin    => false,
-    password => $mco_role::params::middleware_password,
+    password => $middleware_password,
   } ->
 
-  rabbitmq_user { $mco_role::params::middleware_admin_user:
+  rabbitmq_user { $middleware_admin_user:
     ensure   => present,
     admin    => true,
-    password => $mco_role::params::middleware_admin_password,
+    password => $middleware_admin_password,
   } ->
 
-  rabbitmq_user_permissions { "${mco_role::params::middleware_user}@${vhost}":
+  rabbitmq_user_permissions { "${middleware_user}@${vhost}":
     configure_permission => '.*',
     read_permission      => '.*',
     write_permission     => '.*',
   } ->
 
-  rabbitmq_user_permissions { "${mco_role::params::middleware_admin_user}@${vhost}":
+  rabbitmq_user_permissions { "${middleware_admin_user}@${vhost}":
     configure_permission => '.*',
   } ->
 
   rabbitmq_exchange { "mcollective_broadcast@${vhost}":
     ensure   => present,
     type     => 'topic',
-    user     => $mco_role::params::middleware_admin_user,
-    password => $mco_role::params::middleware_admin_password,
+    user     => $middleware_admin_user,
+    password => $middleware_admin_password,
   } ->
 
   rabbitmq_exchange { "mcollective_directed@${vhost}":
     ensure   => present,
     type     => 'direct',
-    user     => $mco_role::params::middleware_admin_user,
-    password => $mco_role::params::middleware_admin_password,
+    user     => $middleware_admin_user,
+    password => $middleware_admin_password,
   }
 
 }
