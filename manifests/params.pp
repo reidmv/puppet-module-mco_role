@@ -1,7 +1,7 @@
 # This class exists solely to aggregate the set of information that tie
 # together the MCollective middleware.
 #
-class mco_role (
+class mco_role::params (
   $main_collective           = 'mcollective',
   $collectives               = undef,
   $middleware_hosts          = undef,
@@ -11,13 +11,14 @@ class mco_role (
   $ssl_server_public         = "${::settings::ssldir}/public_keys/${::clientcert}.pem",
   $ssl_server_private        = "${::settings::ssldir}/private_keys/${::clientcert}.pem",
   $ssl_server_cert           = "${::settings::ssldir}/certs/${::clientcert}.pem",
-  $ssl_server_ca             = "${::settings::ssldir}/certs/ca.pem",
+  $ssl_ca_cert               = "${::settings::ssldir}/certs/ca.pem",
   $connector                 = undef,
   $middleware_admin_user     = 'admin',
   $middleware_admin_password = 'mcollective',
   $rabbitmq_vhost            = '/mcollective',
 ) {
 
-  # No resources are declared by this class.
+  # No resources are declared by this class. It should only be used to set
+  # Hiera parameters to propagate to inheriting classes.
 
 }

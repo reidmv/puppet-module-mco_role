@@ -1,10 +1,25 @@
 # This class prepares an ActiveMQ middleware service for use by MCollective.
+#
+# The default parameters come from the mco_role::params class for only one
+# reason. It allows the user to OPTIONALLY use Hiera to set values in one place
+# and have them propagate multiple related classes. This will only work if the
+# parameters are set in Hiera. It will not work if the parameters are set from
+# an ENC.
+#
 class mco_role::middleware::activemq (
-  $memoryusage = '200 mb',
-  $storeusage  = '1 gb',
-  $tempusage   = '1 gb',
-  $console     = false,
-) inherits mco_role {
+  $memoryusage               = '200 mb',
+  $storeusage                = '1 gb',
+  $tempusage                 = '1 gb',
+  $console                   = false,
+  $ssl_ca_cert               = $mco_role::params::ssl_ca_cert,
+  $ssl_server_cert           = $mco_role::params::ssl_server_cert,
+  $ssl_server_private        = $mco_role::params::ssl_server_private,
+  $middleware_user           = $mco_role::params::middleware_user,
+  $middleware_password       = $mco_role::params::middleware_password,
+  $middleware_admin_user     = $mco_role::params::middleware_admin_user,
+  $middleware_admin_password = $mco_role::params::middleware_admin_password,
+  $middleware_ssl_port       = $mco_role::params::middleware_ssl_port,
+) inherits mco_role::params {
 
   # We need to know somewhat for sure exactly what configuration directory
   # will be used for ActiveMQ in order to correctly build the template.
@@ -27,21 +42,21 @@ class mco_role::middleware::activemq (
     owner   => 'activemq',
     group   => 'activemq',
     mode    => '0444',
-    source  => $mco_role::ssl_server_ca,
+    source  => $ssl_ca_cert,
     require => Class['activemq::packages'],
   }
   file { "${confdir}/server_cert.pem":
     owner   => 'activemq',
     group   => 'activemq',
     mode    => '0444',
-    source  => $mco_role::ssl_server_cert,
+    source  => $ssl_server_cert,
     require => Class['activemq::packages'],
   }
   file { "${confdir}/server_private.pem":
     owner   => 'activemq',
     group   => 'activemq',
     mode    => '0400',
-    source  => $mco_role::ssl_server_private,
+    source  => $ssl_server_private,
     require => Class['activemq::packages'],
   }
 
