@@ -1,7 +1,5 @@
 {
-  "project_page": "https://github.com/SiteInc/site",
   "license": "Apache License, Version 2.0",
-  "source": "https://github.com/SiteInc/site",
   "dependencies": [
     {
       "name": "puppetlabs/activemq",
@@ -23,9 +21,10 @@
   "types": [
 
   ],
-  "description": "Sample profile for MCollective stack",
-  "summary": "Sample profile module",
-  "name": "SiteInc-site",
-  "author": "SiteInc",
+  "description": "Example roles for MCollective stack",
+  "source": "",
+  "summary": "Example module",
+  "name": "example-mco_role",
+  "author": "Reid Vandewiele",
   "version": "0.1.0"
 }
